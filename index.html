@@ -25,7 +25,8 @@ tr.zero{opacity:.6}
 </style><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#17324f"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"></head><body><div id="login" class="w" style="display:none"><div class="c" id="lbox"></div></div><div id="app" class="w" style="display:none">
 <h1>Pran RFL All Time Group A<small>বিতরণ বিলিং সিস্টেম</small></h1><div class="c np" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b id="who"></b> <small id="syn"></small><span><button class="g" id="lgo" onclick="logout()">লগআউট</button><select id="vs" onchange="startApp(this.value)" style="display:none;padding:7px;border-radius:6px"></select></span></div><div class="np"><button id="tdb" onclick="tab('d')">দৈনিক বিল</button><button id="tstk" class="g" style="display:none" onclick="tab('s')">স্টক</button><button id="tacc" class="g" style="display:none" onclick="tab('c')">হিসাব</button><button id="tdash" class="g" style="display:none" onclick="tab('x')">ড্যাশবোর্ড</button><button id="tabb" class="g" style="display:none" onclick="tab('a')">সব রুট</button><button id="tub" class="g" style="display:none" onclick="tab('u')">ইউজার ম্যানেজ</button><button id="tmb" class="g" onclick="tab('m')">মাসের হিসেব</button></div><div id="daily">
 <div class="c"><b>তারিখ:</b> <input type="date" id="dt" onchange="loadDay()"></div>
-<div class="c sc"><table><thead><tr><th>পণ্য</th><th>+ পিস</th><th>কার্টুন</th><th>বিল</th><th>ফেরত পিস</th><th>ফেরত কার্টুন</th><th>ফেরত বিল</th><th>ডেমিজ পিস</th><th>ডেমিজ কার্টুন</th><th>ডেমিজ বিল</th><th>দর/পিস</th><th>পিস/কার্টুন</th><th>কার্টুন দাম</th></tr></thead><tbody id="tb"></tbody>
+<div class="np" style="display:flex;gap:6px;align-items:center;margin:0 0 6px"><button class="g" onclick="zm(-.1)">−</button><b id="zv">100%</b><button class="g" onclick="zm(.1)">+</button><button class="g" onclick="zm(0)">রিসেট</button><small style="color:var(--mut)">দুই আঙুলে জুম করুন</small></div>
+<div class="c sc" id="zw" style="touch-action:pan-x pan-y"><table id="ptab"><thead><tr><th>পণ্য</th><th>+ পিস</th><th>কার্টুন</th><th>বিল</th><th>ফেরত পিস</th><th>ফেরত কার্টুন</th><th>ফেরত বিল</th><th>ডেমিজ পিস</th><th>ডেমিজ কার্টুন</th><th>ডেমিজ বিল</th><th>দর/পিস</th><th>পিস/কার্টুন</th><th>কার্টুন দাম</th></tr></thead><tbody id="tb"></tbody>
 <tfoot><tr><td colspan="3" class="b">গ্রান্ড টোটাল</td><td class="b big" id="gt">0</td><td colspan="2" class="b">ফেরত মোট</td><td class="b" id="rtt">0</td><td colspan="2" class="b">ডেমিজ মোট</td><td class="b" id="dtt">0</td><td colspan="3"></td></tr></tfoot></table></div>
 <div class="np" style="margin:-4px 0 12px"><button class="g" onclick="addP()">+ নতুন পণ্য যোগ করুন</button></div>
 <div class="c"><h2>আজকের হিসেব</h2>
@@ -79,7 +80,7 @@ Choco Venilla|8.5|120|1020|🍫
 Honey Comb|12.5|48|600|🍯
 Family Cake|25|20|500|🎂
 Plain Cake|90|10|900|🍰
-Fruit Cake|110|10|1110|🍰
+Fruit Cake|110|10|1100|🍰
 Sandwitch Cake|8.33|72|600|🍰
 Cup Cake|8.33|72|600|🧁
 Sweet Toast|55|6|330|🥖
@@ -91,9 +92,9 @@ Pillow Wafer|8.33|48|400|🧇
 Slice Cake|8.5|60|510|🍰
 Dry Cake|120|6|720|🍰
 Rusk Toast|55|6|330|🥖
-Mega Butter|12.5|96|800|🧈
+Mega Butter|12.5|96|1200|🧈
 Cream Roll|12.5|60|750|🥐
-Soan Papdi|170|1|170|🍬
+Soan Papdi|165|1|165|🍬
 Mini Dry Cake|8|48|384|🍰
 Pie Cake|12.5|72|900|🥧
 Smart Wafer|500|1|500|🧇
@@ -395,6 +396,14 @@ async function admPw(){if(ME!="admin")return;try{const pw=$("apw").value;await p
 async function backup(){if(ME!="admin")return;const r=await api("alldays"),p=await api("prices"),blob=new Blob([JSON.stringify({users:USERS,prices:p.p,rows:r.rows})],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="backup-"+LD()+".json";document.body.appendChild(a);a.click();a.remove()}
 
 function addP(){const f=["k","q","rk","rq","dk","dq"],v=f.map(p=>P.map((x,i)=>$(p+i).value));P.push({n:"",p:0,c:1,t:0,custom:1});render();f.forEach((p,j)=>v[j].forEach((val,i)=>{$(p+i).value=val}));calc()}
+
+let ZZ=1;function zset(v){ZZ=Math.max(.5,Math.min(3,v));const t=$("ptab");if(t)t.style.zoom=ZZ;const l=$("zv");if(l)l.textContent=Math.round(ZZ*100)+"%";try{localStorage.setItem("zoom",ZZ)}catch(e){}}
+function zm(d){zset(d?ZZ+d:1)}
+(function(){const w=$("zw");if(!w||!w.addEventListener)return;let d0=0,z0=1;const dist=e=>Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+w.addEventListener("touchstart",e=>{if(e.touches.length==2){d0=dist(e);z0=ZZ}},{passive:true});
+w.addEventListener("touchmove",e=>{if(e.touches.length==2&&d0){e.preventDefault();zset(z0*dist(e)/d0)}},{passive:false});
+w.addEventListener("touchend",e=>{if(e.touches.length<2)d0=0},{passive:true});
+let s=1;try{s=+localStorage.getItem("zoom")||1}catch(e){}zset(s)})();
 
 boot();
 </script><script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script>
